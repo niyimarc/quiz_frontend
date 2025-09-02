@@ -1,0 +1,127 @@
+/* Basic reset to prevent overflow issues */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f0f2f5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    /* This line is crucial to prevent horizontal scrolling */
+    overflow-x: hidden;
+}
+
+/* --- Navbar Styles --- */
+.navbar-brand, .nav-link, .dropbtn {
+    font-weight: 600;
+}
+
+.dropdown-menu {
+    background-color: #343a40;
+}
+
+.dropdown-menu a {
+    color: white;
+}
+
+.dropdown-menu a:hover {
+    background-color: #495057;
+}
+
+/* --- Main Content Layout --- */
+.container-fluid.flex-grow-1 {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1rem;
+}
+
+.quiz-container, .add-quiz-container {
+    border-radius: 1rem;
+    max-width: 650px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* --- Ad Containers --- */
+.ad-container {
+    height: 100%;
+    /* Added flex properties for centered content */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.5rem;
+}
+
+.ad-container-mobile {
+    min-height: 100px;
+    border-radius: 0.5rem;
+    width: 100%; /* Ensure it's 100% of its parent on mobile */
+}
+
+/* --- Quiz-specific Styling --- */
+.question-container h2 {
+    font-weight: 600;
+}
+
+.list-group-item.option {
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.list-group-item.option:hover {
+    background-color: #e9ecef;
+    transform: translateY(-2px);
+}
+
+.list-group-item.option.correct {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.list-group-item.option.incorrect {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.feedback-correct {
+    color: #0f5132;
+    background-color: #d1e7dd;
+    border-color: #badbcc;
+}
+
+.feedback-incorrect {
+    color: #842029;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+/* --- Responsive Layout for Desktop --- */
+@media (min-width: 992px) {
+    .container-fluid.flex-grow-1 {
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    .ad-container.d-none.d-lg-flex {
+        display: flex !important;
+        min-height: 600px;
+    }
+
+    .ad-container.ad-left {
+        margin-right: 1.5rem;
+    }
+
+    .ad-container.ad-right {
+        margin-left: 1.5rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .w-md-33 {
+        width: 33.333333% !important;
+    }
+}

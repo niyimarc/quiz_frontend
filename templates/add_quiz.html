@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+{% block meta %}
+<meta property="og:title" content="{{business_name}} Quiz">
+<meta property="og:description" content="Welcome to {{business_name}}">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta property="og:image" content="{% static 'assets/img/logo/black-logo.svg' %}">
+{% endblock meta %}
+{% block title %}
+{{business_name}} - Quiz
+{% endblock title %}
+
+{% block content %}
+{% include "includes/add_quiz.html" %}
+{% endblock content %}
+
+{% block extra_js %}
+{% endblock extra_js %}
