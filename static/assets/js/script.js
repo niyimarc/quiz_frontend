@@ -1,18 +1,7 @@
-const questions = [
-    {
-        question: "What is the capital of France?",
-        options: ["Berlin", "Madrid", "Paris", "Rome"],
-        correctAnswer: "Paris"
-    },
-    {
-        question: "Which planet is known as the 'Red Planet'?",
-        options: ["Jupiter", "Mars", "Venus", "Saturn"],
-        correctAnswer: "Mars"
-    }
-];
-
+let questions = [];
+let sessionId = null;
 let currentQuestionIndex = 0;
-const totalQuestions = questions.length;
+let totalQuestions = 0;
 
 const questionNumberElement = document.getElementById("question-number");
 const questionElement = document.getElementById("question");
@@ -20,6 +9,32 @@ const optionsContainer = document.getElementById("options-container");
 const feedbackElement = document.getElementById("feedback-message");
 const nextButton = document.getElementById("next-btn");
 const progressBar = document.getElementById("progress-bar");
+
+// CSRF helper (optional for proxy)
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Initialize quiz on page load
+document.addEventListener("DOMContentLoaded", () => {
+    if (QUIZ_DATA && QUIZ_DATA.questions) {
+        sessionId = QUIZ_DATA.session_id;
+        questions = QUIZ_DATA.questions;
+        totalQuestions = QUIZ_DATA.total_questions;
+        showQuestion();
+    }
+});
 
 function updateProgressBar() {
     const progress = (currentQuestionIndex / totalQuestions) * 100;
@@ -30,10 +45,10 @@ function showQuestion() {
     if (currentQuestionIndex < totalQuestions) {
         const currentQuestion = questions[currentQuestionIndex];
         questionNumberElement.textContent = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
-        questionElement.textContent = currentQuestion.question;
-        optionsContainer.innerHTML = ''; // Clear previous options
-        feedbackElement.classList.add('d-none');
-        nextButton.style.display = 'none';
+        questionElement.textContent = currentQuestion.text;
+        optionsContainer.innerHTML = "";
+        feedbackElement.classList.add("d-none");
+        nextButton.style.display = "none";
 
         currentQuestion.options.forEach(option => {
             const optionElement = document.createElement("a");
@@ -41,7 +56,7 @@ function showQuestion() {
             optionElement.textContent = option;
             optionElement.classList.add("list-group-item", "list-group-item-action", "option");
             optionElement.addEventListener("click", (e) => {
-                e.preventDefault(); // Prevent default link behavior
+                e.preventDefault();
                 checkAnswer(option);
             });
             optionsContainer.appendChild(optionElement);
@@ -49,49 +64,68 @@ function showQuestion() {
 
         updateProgressBar();
     } else {
-        // End of quiz
-        questionNumberElement.textContent = `Quiz Completed!`;
+        // Quiz complete
+        questionNumberElement.textContent = "Quiz Completed!";
         questionElement.textContent = "You have finished the quiz.";
-        optionsContainer.innerHTML = '';
-        feedbackElement.classList.add('d-none');
-        nextButton.style.display = 'none';
-        updateProgressBar();
+        optionsContainer.innerHTML = "";
+        feedbackElement.classList.add("d-none");
+        nextButton.style.display = "none";
+        progressBar.style.width = "100%";
     }
 }
 
 function checkAnswer(selectedOption) {
     const currentQuestion = questions[currentQuestionIndex];
-    const isCorrect = (selectedOption === currentQuestion.correctAnswer);
-    
-    // Disable all options after selection
-    Array.from(optionsContainer.children).forEach(option => {
-        option.classList.remove('list-group-item-action');
-        option.style.pointerEvents = 'none';
-        if (option.textContent === currentQuestion.correctAnswer) {
-            option.classList.add('correct');
-        } else if (option.textContent === selectedOption) {
-            option.classList.add('incorrect');
+
+    // Send answer through proxy
+    fetch(`/proxy/?endpoint=/api/quiz/submit_quiz_answer/&endpoint_type=private`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            session_id: sessionId,
+            question_number: currentQuestion.number,
+            answer: selectedOption
+        })
+    })
+    .then(res => res.json())
+    .then(result => {
+        const correctAnswer = result.correct_answer;
+
+        // Disable options
+        Array.from(optionsContainer.children).forEach(option => {
+            option.classList.remove("list-group-item-action");
+            option.style.pointerEvents = "none";
+            if (option.textContent === correctAnswer) {
+                option.classList.add("correct");
+            } else if (option.textContent === selectedOption) {
+                option.classList.add("incorrect");
+            }
+        });
+
+        // Show feedback
+        feedbackElement.classList.remove("d-none", "feedback-correct", "feedback-incorrect");
+        if (result.correct) {
+            feedbackElement.textContent = "Correct! 🎉";
+            feedbackElement.classList.add("feedback-correct");
+        } else {
+            feedbackElement.textContent = `Incorrect. Correct Answer is: "${result.correct_answer}"`;
+            feedbackElement.classList.add("feedback-incorrect");
         }
+
+        nextButton.style.display = "block";
+    })
+    .catch(err => {
+        console.error("Error submitting answer:", err);
+        feedbackElement.classList.remove("d-none");
+        feedbackElement.textContent = "Error submitting answer. Please try again.";
+        nextButton.style.display = "block";
     });
-
-    // Display feedback
-    feedbackElement.classList.remove('d-none', 'feedback-correct', 'feedback-incorrect');
-    if (isCorrect) {
-        feedbackElement.textContent = "Correct! 🎉 Congratulations!";
-        feedbackElement.classList.add('feedback-correct');
-    } else {
-        feedbackElement.textContent = `Incorrect. The correct answer was "${currentQuestion.correctAnswer}".`;
-        feedbackElement.classList.add('feedback-incorrect');
-    }
-
-    // Show next button
-    nextButton.style.display = 'block';
 }
 
+// Next button click
 nextButton.addEventListener("click", () => {
     currentQuestionIndex++;
     showQuestion();
 });
-
-// Initial load
-showQuestion();

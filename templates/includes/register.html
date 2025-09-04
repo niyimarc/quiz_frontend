@@ -1,0 +1,34 @@
+<div class="register-container card shadow-lg p-4 bg-white">
+    <h1 class="card-title text-center text-primary fw-bold">Register</h1>
+    <form method="post" action="">
+    {% csrf_token %}
+    <div class="mb-3">
+            <label for="first_name" class="form-label">First Name</label>
+            <input type="text" name="first_name" class="form-control" id="first_name" required>
+        </div>
+        <div class="mb-3">
+            <label for="last_name" class="form-label">Last Name</label>
+            <input type="text" name="last_name" class="form-control" id="last_name" required>
+        </div>
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" name="username" class="form-control" id="username" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" id="email" required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" required>
+        </div>
+        <div class="mb-3">
+            <label for="confirmPassword" class="form-label">Confirm Password</label>
+            <input type="password" name="password" class="form-control" id="confirmPassword" required>
+        </div>
+        <div class="text-center mb-3">
+            <a href="{% url 'auth_app:login' %}" class="text-decoration-none">Already have an account? Login</a>
+        </div>
+        <button type="submit" class="btn btn-success w-100">Register</button>
+    </form>
+</div>

@@ -11,12 +11,8 @@
 {% endblock title %}
 
 {% block content %}
-{% include "includes/quiz.html" %}
+{% include "includes/register.html" %}
 {% endblock content %}
 
 {% block extra_js %}
-<script>
-    const QUIZ_DATA = {{ quiz_data|safe }};
-</script>
-
 {% endblock extra_js %}

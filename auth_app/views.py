@@ -6,6 +6,7 @@ from .utils import redirect_if_authenticated
 
 @redirect_if_authenticated
 def login_view(request):
+    request.skip_quiz_categories_context = True
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -49,32 +50,10 @@ def login_view(request):
             except requests.RequestException:
                 request.session['user_profile'] = {}
 
-            guest_cart = request.session.get('cart', [])
-            if guest_cart:
-                sync_cart_url = request.build_absolute_uri(
-                    reverse('proxy_handler') + '?endpoint=/api/cart/sync_cart/&endpoint_type=private'
-                )
-
-                sessionid = request.COOKIES.get('sessionid')
-
-                try:
-                    sync_response = requests.post(
-                        sync_cart_url,
-                        json={'cart_items': guest_cart},
-                        headers={
-                            'Authorization': f'Bearer {access_token}',
-                            'Cookie': f'sessionid={sessionid}'
-                        }
-                    )
-                    if sync_response.status_code == 200:
-                        del request.session['cart']  # Clear guest cart after sync
-                except requests.RequestException as e:
-                    print("Cart sync failed:", str(e))
-
             next_url = request.POST.get("next") or request.GET.get("next")
             if next_url:
                 return redirect(next_url)
-            return redirect('store:home')
+            return redirect('quiz_app:list_quiz')
         else:
             messages.error(request, 'Invalid credentials.')
 
@@ -84,6 +63,7 @@ def login_view(request):
 
 @redirect_if_authenticated
 def register_view(request):
+    request.skip_quiz_categories_context = True
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
@@ -114,6 +94,7 @@ def register_view(request):
     return render(request, 'register.html')
 
 def logout_view(request):
+    request.skip_quiz_categories_context = True
     proxy_url = request.build_absolute_uri(
         reverse('proxy_handler') + '?endpoint=/api/logout/&endpoint_type=private'
     )

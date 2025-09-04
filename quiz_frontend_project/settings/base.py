@@ -53,6 +53,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'quiz_app.context_processors.app_information',
+                'quiz_app.context_processors.quiz_categories_data',
             ],
         },
     },
@@ -102,12 +104,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
-STATIC_URL = 'static/'
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
@@ -120,3 +116,9 @@ BACKEND_BASE_URL = os.environ.get("BACKEND_BASE_URL")
 API_KEY = os.environ.get("API_KEY")
 
 PROXY_BASE_URL = os.environ.get("PROXY_BASE_URL", "http://127.0.0.1:8001/proxy/")
+
+# app informations
+BUSINESS_NAME = os.environ.get('BUSINESS_NAME')
+BUSINESS_LOGO = os.environ.get('BUSINESS_LOGO')
+CONTACT_EMAIL = os.environ.get('CONTACT_EMAIL')
+BASE_URL = os.environ.get("BASE_URL")

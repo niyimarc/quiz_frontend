@@ -9,6 +9,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('proxy.urls')),
     path('auth/', include('auth_app.urls')),
+    path('', include('proxy.urls')),
+    path('', include('quiz_app.urls')),
 ]
 
 if not settings.DEBUG:

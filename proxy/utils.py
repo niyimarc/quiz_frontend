@@ -31,8 +31,11 @@ def refresh_access_token(session):
         response = requests.post(refresh_url, json={'refresh': refresh_token})
         if response.status_code == 200:
             tokens = response.json()
+            # Always update access token
             session['access_token'] = tokens.get('access')
-            session['refresh_token'] = tokens.get('refresh')
+            # Only update refresh token if it's present
+            if "refresh" in tokens:
+                session["refresh_token"] = tokens["refresh"]
             return tokens.get('access')
     except requests.RequestException:
         pass

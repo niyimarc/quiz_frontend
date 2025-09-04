@@ -1,0 +1,19 @@
+<div class="login-container card shadow-lg p-4 bg-white">
+    <h1 class="card-title text-center text-primary fw-bold">Login</h1>
+    <form method="post" action="">
+    {% csrf_token %}
+        <div class="mb-3">
+            <label for="username" class="form-label">Username or Email</label>
+            <input type="text" name="username" class="form-control" id="username" required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" id="password" required>
+        </div>
+        <div class="d-flex justify-content-between mb-3">
+            <a href="#" class="text-decoration-none">Forgot Password?</a>
+            <a href="{% url 'auth_app:register' %}" class="text-decoration-none">Register</a>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+    </form>
+</div>
