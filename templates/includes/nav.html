@@ -12,6 +12,8 @@
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                         <li><a class="dropdown-item" href="#">Add Quiz</a></li>
+                        <li><a class="dropdown-item" href="{% url 'quiz_app:continue_quiz' %}">Continue Quiz</a></li>
+                        <li><a class="dropdown-item" href="{% url 'quiz_app:list_retry_quizzes' %}">Retry Missed Quiz</a></li>
                         <li><a class="dropdown-item" href="#">Delete Quiz</a></li>
                         <li><a class="dropdown-item" href="#">Give Permission</a></li>
                     </ul>
@@ -19,9 +21,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'quiz_app:list_quiz' %}">View Quizzes</a>
                 </li>
-                <li class="nav-item">
+                {% comment %} <li class="nav-item">
                     <a class="nav-link" href="#">Account</a>
-                </li>
+                </li> {% endcomment %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'auth_app:logout' %}">Logout</a>
                 </li>

@@ -2,6 +2,7 @@ let questions = [];
 let sessionId = null;
 let currentQuestionIndex = 0;
 let totalQuestions = 0;
+let isRetry = false;
 
 const questionNumberElement = document.getElementById("question-number");
 const questionElement = document.getElementById("question");
@@ -32,6 +33,8 @@ document.addEventListener("DOMContentLoaded", () => {
         sessionId = QUIZ_DATA.session_id;
         questions = QUIZ_DATA.questions;
         totalQuestions = QUIZ_DATA.total_questions;
+        currentQuestionIndex = QUIZ_DATA.current_question_index || 0;
+        isRetry = QUIZ_DATA.is_retry || false;
         showQuestion();
     }
 });
@@ -78,17 +81,22 @@ function checkAnswer(selectedOption) {
     const currentQuestion = questions[currentQuestionIndex];
 
     // Send answer through proxy
-    fetch(`/proxy/?endpoint=/api/quiz/submit_quiz_answer/&endpoint_type=private`, {
+    const endpoint = isRetry 
+        ? "/api/quiz/submit_retry_answer/" 
+        : "/api/quiz/submit_quiz_answer/";
+
+    fetch(`/proxy/?endpoint=${endpoint}&endpoint_type=private`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
             session_id: sessionId,
-            question_number: currentQuestion.number,
+            question_index: currentQuestionIndex,
             answer: selectedOption
         })
     })
+
     .then(res => res.json())
     .then(result => {
         const correctAnswer = result.correct_answer;
@@ -129,3 +137,5 @@ nextButton.addEventListener("click", () => {
     currentQuestionIndex++;
     showQuestion();
 });
+
+

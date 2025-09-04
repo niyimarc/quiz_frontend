@@ -1,23 +1,18 @@
 {% extends "base.html" %}
 {% load static %}
 {% block meta %}
-<meta property="og:title" content="{{business_name}} Quiz">
+<meta property="og:title" content="{{business_name}} Retry Quiz">
 <meta property="og:description" content="Welcome to {{business_name}}">
 <meta property="og:url" content="{{ request.build_absolute_uri }}">
 <meta property="og:image" content="{% static 'assets/img/logo/black-logo.svg' %}">
 {% endblock meta %}
 {% block title %}
-{{business_name}} - Quiz
+{{business_name}} - Retry Quiz
 {% endblock title %}
 
 {% block content %}
-{% include "includes/quiz.html" %}
+{% include "includes/list_retry_quiz.html" %}
 {% endblock content %}
 
 {% block extra_js %}
-{{ quiz_data|json_script:"quiz-data" }}
-
-<script>
-    const QUIZ_DATA = JSON.parse(document.getElementById("quiz-data").textContent);
-</script>
 {% endblock extra_js %}
