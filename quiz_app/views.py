@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from .utils import get_quizzes
+from auth_app.utils import session_access_required
 from django.core.cache import cache
 import requests
 import json
-# Create your views here.
 
+@session_access_required
 def list_quiz(request):
     request.skip_quiz_categories_context = False
     try:
@@ -18,6 +19,7 @@ def list_quiz(request):
 
     return render(request, "list_quizzes.html", data)
 
+@session_access_required
 def start_quiz(request, quiz_id):
     quiz_data = cache.get("quiz_data")
     try:
@@ -49,6 +51,7 @@ def start_quiz(request, quiz_id):
 
     return render(request, "quiz.html", {"quiz_data": quiz_data})
 
+@session_access_required
 def continue_quiz_view(request):
     quiz_data = []
     try:
@@ -78,6 +81,7 @@ def continue_quiz_view(request):
 
     return render(request, "continue_quiz.html", {"quiz_data": quiz_data})
 
+@session_access_required
 def resume_quiz_view(request, session_id):
     quiz_data = {}
     try:
@@ -106,6 +110,7 @@ def resume_quiz_view(request, session_id):
 
     return render(request, "quiz.html", {"quiz_data": quiz_data})
 
+@session_access_required
 def list_retry_quizzes(request):
     quiz_data = cache.get(f"retryable_quizzes_{request.user.id}")
     try:
@@ -140,6 +145,7 @@ def list_retry_quizzes(request):
 
     return render(request, "list_retry_quiz.html", {"quiz_data": quiz_data})
 
+@session_access_required
 def start_retry(request, score_id):
     quiz_data = cache.get(f"retry_quiz_{score_id}")
     try:
@@ -173,6 +179,7 @@ def start_retry(request, score_id):
 
     return render(request, "quiz.html", {"quiz_data": quiz_data})
 
+@session_access_required
 def resume_retry(request, session_id):
     quiz_data = cache.get(f"retry_session_{session_id}")
     try:

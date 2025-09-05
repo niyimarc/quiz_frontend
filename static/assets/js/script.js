@@ -133,9 +133,45 @@ function checkAnswer(selectedOption) {
 }
 
 // Next button click
-nextButton.addEventListener("click", () => {
-    currentQuestionIndex++;
-    showQuestion();
+if (nextButton) {
+    nextButton.addEventListener("click", () => {
+        currentQuestionIndex++;
+        showQuestion();
+    });
+}
+
+document.getElementById("categoryFilter").addEventListener("change", function() {
+    const selectedCategory = this.value;
+    const params = new URLSearchParams(window.location.search);
+
+    if (selectedCategory) {
+        params.set("category_id", selectedCategory);
+        params.delete("page"); // reset to page 1
+    } else {
+        params.delete("category_id");
+    }
+
+    window.location.search = params.toString();
 });
 
+// Search button
+document.getElementById("quizSearchBtn").addEventListener("click", function() {
+    const searchValue = document.getElementById("quizSearchInput").value.trim();
+    const params = new URLSearchParams(window.location.search);
 
+    if (searchValue) {
+        params.set("search", searchValue);
+        params.delete("page"); // reset to page 1
+    } else {
+        params.delete("search");
+    }
+
+    window.location.search = params.toString();
+});
+
+// Optional: allow pressing Enter to trigger search
+document.getElementById("quizSearchInput").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        document.getElementById("quizSearchBtn").click();
+    }
+});

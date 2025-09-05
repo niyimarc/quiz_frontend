@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'quiz_app',
     'proxy',
     'auth_app',
+    'manage_quiz',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +54,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'auth_app.context_processors.auth_status',
                 'quiz_app.context_processors.app_information',
                 'quiz_app.context_processors.quiz_categories_data',
             ],

@@ -73,8 +73,8 @@ def register_view(request):
         email = request.POST.get('email')
         if password != confirm_password:
             messages.error(request, "Passwords do not match.")
-            print("Passwords do not match.")
-            return render(request, 'auth/register.html')
+            # print("Passwords do not match.")
+            return render(request, 'register.html')
 
         proxy_url = request.build_absolute_uri(
             reverse('proxy_handler') + '?endpoint=/api/register/&endpoint_type=public'

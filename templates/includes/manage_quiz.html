@@ -1,0 +1,245 @@
+<h1 class="text-center text-primary fw-bold mb-4">My Quizzes</h1>
+
+<div class="d-flex flex-column flex-md-row w-100 mb-4 justify-content-center align-items-center gap-3">
+    <div class="input-group" style="max-width: 400px;">
+        <input id="quizSearchInput" class="form-control" type="search" placeholder="Search quizzes..." aria-label="Search">
+        <button id="quizSearchBtn" class="btn btn-primary" type="button">Search</button>
+    </div>
+    <select id="categoryFilter" class="form-select" aria-label="Filter by category" style="max-width: 200px;">
+        <option selected disabled>Select Category</option>
+        {% if quiz_categories.categories %}
+            {% for category in quiz_categories.categories %}
+                <option value="{{ category.id }}">{{ category.name }} ({{category.quiz_count}})</option>
+            {% endfor %}
+        {% endif %}
+    </select>
+</div>
+
+<div class="container">
+    <div class="row g-4 justify-content-center">
+        {% if quizzes %}
+            {% for quiz in quizzes %}
+            <div class="col-12 col-md-6">
+                <div class="card quiz-card shadow-sm h-100">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title fw-bold">{{ quiz.name }}</h5>
+                        <p class="card-text text-muted">
+                            <small>Categories: 
+                                {% for cat in quiz.category %}
+                                    <span class="badge bg-secondary">{{ cat.name }}</span>
+                                {% empty %}
+                                    <span class="text-muted">No category</span>
+                                {% endfor %}
+                            </small>
+                        </p>
+                        <p class="card-text">
+                            <small>Total Participants: 
+                                <span class="fw-bold">{{quiz.total_participants}}</span>
+                            </small>
+                        </p>
+                        <p class="card-text">
+                            <small>Total Attempts: 
+                                <span class="fw-bold">{{quiz.total_attempts}}</span>
+                            </small>
+                        </p>
+                        <p class="card-text">
+                            <small>Number of Questions: 
+                                <span class="fw-bold">{{quiz.total_questions}}</span>
+                            </small>
+                        </p>
+                        <p class="card-text">
+                            <small>Status: 
+                                <span class="fw-bold">{{quiz.status}}</span>
+                            </small>
+                        </p>
+                        <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
+                            <a href="{% url 'quiz_app:start_quiz' quiz.id %}" class="btn btn-primary w-100">Start Quiz</a>
+                            <a href="#" 
+                                class="btn btn-sm btn-primary flex-fill" 
+                                onclick="openQuizEditModal('{{ quiz.id }}', '{{ quiz.status }}', '{{ quiz.name|escapejs }}')" 
+                                data-bs-toggle="modal" data-bs-target="#quizEditModal">
+                                <i class="fas fa-edit me-1"></i> Edit
+                            </a>
+
+                            <a href="#"
+                            class="btn btn-sm btn-warning flex-fill grant-access-btn"
+                            data-quiz-id="{{ quiz.id }}"
+                            data-bs-toggle="modal"
+                            data-bs-target="#grantAccessModal">
+                            <i class="fas fa-share-alt me-1"></i> Permission
+                            </a>
+
+                            <a href="#" 
+                            class="btn btn-sm btn-danger flex-fill delete-quiz-btn"
+                            data-quiz-id="{{ quiz.id }}"
+                            data-quiz-name="{{ quiz.name }}"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteQuizModal">
+                            <i class="fas fa-trash-alt me-1"></i> Delete
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-center text-muted">No quizzes available.</p>
+        {% endif %}
+    </div>
+</div>
+
+<nav aria-label="Quiz Page Navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page|add:'-1' }}{% if category_id %}&category_id={{ category_id }}{% endif %}{% if search %}&search={{ search }}{% endif %}">Previous</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><a class="page-link">Previous</a></li>
+        {% endif %}
+
+        {% for p in page_numbers %}
+        <li class="page-item {% if p == page %}active{% endif %}">
+            <a class="page-link" href="?page={{ p }}{% if category_id %}&category_id={{ category_id }}{% endif %}{% if search %}&search={{ search }}{% endif %}">{{ p }}</a>
+        </li>
+        {% endfor %}
+
+        {% if show_ellipsis %}
+        <li class="page-item disabled"><a class="page-link">…</a></li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ total_pages }}{% if category_id %}&category_id={{ category_id }}{% endif %}{% if search %}&search={{ search }}{% endif %}">{{ total_pages }}</a>
+        </li>
+        {% endif %}
+
+        {% if has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page|add:'1' }}{% if category_id %}&category_id={{ category_id }}{% endif %}{% if search %}&search={{ search }}{% endif %}">Next</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><a class="page-link">Next</a></li>
+        {% endif %}
+    </ul>
+</nav>
+
+<!-- Modal -->
+<div class="modal fade" id="quizEditModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      
+      <!-- Modal Header with Toggle -->
+      <div class="modal-header">
+        <h5 class="modal-title">Manage Quiz</h5>
+        <div class="btn-group ms-3">
+          <button type="button" class="btn btn-sm btn-outline-primary active" id="statusTab">Status</button>
+          <button type="button" class="btn btn-sm btn-outline-primary" id="nameTab">Name</button>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        
+        <!-- Update Status Form (default visible) -->
+        <form id="statusForm" method="post" action="">
+        {% csrf_token %}
+            <input type="hidden" id="quizIdInput" name="quiz_id">
+                <div class="mb-3">
+                    <label for="status" class="form-label">Quiz Status</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="public">Public</option>
+                        <option value="private">Private</option>
+                    </select>
+                </div>
+            <button type="submit" class="btn btn-primary">Update Status</button>
+        </form>
+
+        <!-- Edit Name Form (hidden initially) -->
+        <form id="nameForm" method="post" action="" style="display: none;">
+        {% csrf_token %}
+            <div class="mb-3">
+                <label for="quiz_name" class="form-label">Quiz Name</label>
+                <input type="text" name="new_name" id="quiz_name" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">Update Name</button>
+        </form>
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteQuizModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      
+      <div class="modal-header">
+        <h5 class="modal-title text-danger">Confirm Delete</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <p id="deleteQuizMessage"></p>
+        <input type="hidden" id="deleteQuizId">
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteQuizBtn">Yes, Delete</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- Grant Access Modal -->
+<div class="modal fade" id="grantAccessModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Grant Quiz Access</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <form id="grantAccessForm">
+          {% csrf_token %}
+          <input type="hidden" id="grantQuizId" name="quiz_id">
+
+          <div class="mb-3">
+            <label for="targetUsername" class="form-label">Username</label>
+            <input type="text" id="targetUsername" name="target_username" class="form-control" placeholder="@username" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="accessType" class="form-label">Access Type</label>
+            <select id="accessType" name="access_type" class="form-select">
+              <option value="participate_access">Participate Access</option>
+              <option value="full_access">Full Access</option>
+            </select>
+          </div>
+
+          <!-- dropdown of users who already have access -->
+          <div class="mb-3">
+            <label for="existingAccesses" class="form-label">Users with Access</label>
+            <select id="existingAccesses" class="form-select">
+              <option disabled selected>Loading...</option>
+            </select>
+          </div>
+
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" form="grantAccessForm" class="btn btn-primary">Grant Access</button>
+      </div>
+
+    </div>
+  </div>
+</div>

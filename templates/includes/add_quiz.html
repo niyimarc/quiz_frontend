@@ -1,28 +1,29 @@
 <div class="add-quiz-container card shadow-lg p-4 bg-white">
     <h1 class="card-title text-center text-primary fw-bold">Add a New Quiz</h1>
-    <form>
+    <form method="POST">
+    {% csrf_token %}
         <div class="mb-3">
             <label for="quizName" class="form-label">Quiz Name</label>
-            <input type="text" class="form-control" id="quizName" required>
+            <input type="text" name="name" class="form-control" id="quizName" required>
         </div>
         <div class="mb-3">
             <label for="spreadsheetUrl" class="form-label">Spreadsheet URL</label>
-            <input type="url" class="form-control" id="spreadsheetUrl" required>
+            <input type="url" name="sheet_url" class="form-control" id="spreadsheetUrl" required>
         </div>
         <div class="mb-3">
             <label for="category" class="form-label">Category</label>
-            <select class="form-select" id="category" required>
-                <option value="">Select a category</option>
-                <option value="general">General Knowledge</option>
-                <option value="science">Science</option>
-                <option value="history">History</option>
-                <option value="math">Mathematics</option>
-                <option value="geography">Geography</option>
+            <select class="form-select" name="category" id="category" required>
+                <option selected disabled>Select Category</option>
+                {% if quiz_categories.categories %}
+                    {% for category in quiz_categories.categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                {% endif %}
             </select>
         </div>
         <div class="mb-3">
             <label for="status" class="form-label">Status</label>
-            <select class="form-select" id="status" required>
+            <select class="form-select" name="status" id="status" required>
                 <option value="private">Private</option>
                 <option value="public">Public</option>
             </select>

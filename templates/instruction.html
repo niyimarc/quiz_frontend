@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+{% block meta %}
+<meta property="og:title" content="{{business_name}} Instruction">
+<meta property="og:description" content="Welcome to {{business_name}}">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta property="og:image" content="{% static 'assets/img/logo/black-logo.svg' %}">
+{% endblock meta %}
+{% block title %}
+{{business_name}} - Instruction
+{% endblock title %}
+
+{% block content %}
+{% include "includes/instruction.html" %}
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+document.getElementById("copyPromptBtn").addEventListener("click", function () {
+    const textarea = document.getElementById("quizPrompt");
+    textarea.select();
+    textarea.setSelectionRange(0, 99999); // For mobile support
+    navigator.clipboard.writeText(textarea.value).then(() => {
+        const status = document.getElementById("copyStatus");
+        status.classList.remove("d-none");
+        setTimeout(() => status.classList.add("d-none"), 2000);
+    });
+});
+</script>
+{% endblock extra_js %}

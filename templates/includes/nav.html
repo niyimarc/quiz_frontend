@@ -1,32 +1,42 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">Awesome Quiz</a>
+        <a class="navbar-brand" href="#">{{business_name}}</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
             <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'manage_quiz:instruction' %}">Instructions</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'quiz_app:list_quiz' %}">View Quizzes</a>
+                </li>
+
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         My Quiz
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <li><a class="dropdown-item" href="#">Add Quiz</a></li>
+                        <li><a class="dropdown-item" href="{% url 'manage_quiz:add_quiz' %}">Add Quiz</a></li>
                         <li><a class="dropdown-item" href="{% url 'quiz_app:continue_quiz' %}">Continue Quiz</a></li>
                         <li><a class="dropdown-item" href="{% url 'quiz_app:list_retry_quizzes' %}">Retry Missed Quiz</a></li>
-                        <li><a class="dropdown-item" href="#">Delete Quiz</a></li>
-                        <li><a class="dropdown-item" href="#">Give Permission</a></li>
+                        <li><a class="dropdown-item" href="{% url 'manage_quiz:manage_quiz' %}">Manage My Quiz</a></li>
                     </ul>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'quiz_app:list_quiz' %}">View Quizzes</a>
-                </li>
+                
                 {% comment %} <li class="nav-item">
                     <a class="nav-link" href="#">Account</a>
                 </li> {% endcomment %}
+                {% if is_logged_in %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'auth_app:logout' %}">Logout</a>
                 </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'auth_app:login' %}">Login</a>
+                </li>
+                {% endif %}
             </ul>
         </div>
     </div>

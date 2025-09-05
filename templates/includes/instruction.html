@@ -1,0 +1,82 @@
+<div class="add-quiz-container card shadow-lg p-4 bg-white">
+    <h1 class="card-title text-center text-primary fw-bold">Copy prompt</h1>
+    <div class="mb-3 position-relative">
+        <textarea id="quizPrompt" class="form-control" rows="10" readonly style="font-size: 0.9rem; white-space: pre-wrap;">
+extract the multiple-choice questions from the provided document or picture of the past questions and format them into a Google Sheets-compatible table. The table should have the following columns: question_number, question, option_a, option_b, option_c, option_d, option_e, and correct_answer. For the correct_answer column, please use the format [letter]. [full text of the option].
+
+For example:
+question_number: 1
+question: In BIS, which of the following is/are true about a system?
+option_a: It is a collection of interrelated components that works together towards a collective goal.
+option_b: A system can either be static or adaptive
+option_c: Some of the system components are input, feedback and control
+option_d: All of the above
+option_e: Options (a) and (c) only
+correct_answer: d. All of the above
+
+Please apply this format to all multiple-choice questions from the document or image.
+        </textarea>
+        <button id="copyPromptBtn" class="btn btn-sm btn-primary mt-2">📋 Copy Prompt</button>
+        <small id="copyStatus" class="text-success d-none ms-2">Copied!</small>
+    </div>
+</div>
+
+
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-10 col-lg-8">
+      <div class="instructions card shadow-lg p-4 bg-light mt-4">
+        
+
+        <div class="instructions card shadow-lg p-4 bg-light mt-4">
+            <h2 class="card-title text-primary fw-bold text-center">Steps to Prepare Your Quiz</h2>
+            <ol class="mt-3 ps-3">
+                <li>Take a clear <b>picture</b> of the objective past questions (or use the original document).</li>
+                <li>Give the picture/document together with the <b>prompt above</b> to an AI tool (like Gemini or ChatGPT).</li>
+                <li>Copy the AI’s output into a <b>Google Sheet</b>.</li>
+                <li>At the top left in Google Sheets, click:
+                    <br><i>File → Share → Publish to web</i>
+                </li>
+                <li>Under 'Link', select your sheet.</li>
+                <li>Change format to: <i>Comma-separated values (.csv)</i>.</li>
+                <li>Click <b>Publish</b> and copy the link.</li>
+            </ol>
+
+            <div class="mt-3">
+                <b>🔗 Example link:</b><br>
+                <div class="text-truncate" style="max-width: 100%;">
+                    <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vTDgwL5e7qMYjKsjkpBxsjHFuIwxsY1tMlMkLADQo9RHanrWGel0xCPuDG_oUBKO8cz-XMUx2NWJoT-/pub?gid=451652525&single=true&output=csv"
+                    target="_blank" class="d-inline-block text-break">
+                        https://docs.google.com/spreadsheets/d/e/.../output=csv
+                    </a>
+                </div>
+            </div>
+
+            <h3 class="mt-3">📝 Spreadsheet column headers:</h3>
+            <div class="bg-white border rounded p-2 overflow-auto">
+                <code>question_number question option_a option_b option_c option_d correct_answer</code>
+            </div>
+
+            <ul class="mt-2">
+                <li><b>Required:</b> question_number, question, option_a, option_b, correct_answer</li>
+                <li><b>Optional:</b> option_c, option_d, option_e, option_f</li>
+            </ul>
+
+            <h3 class="mt-3">✅ Status options:</h3>
+            <ul>
+                <li><b>public:</b> Anyone using the platform can find and take this quiz.</li>
+                <li><b>private:</b> Only you (and users you later grant access to) can take this quiz.</li>
+            </ul>
+
+            <p class="mt-4 text-center">
+                When you’re ready, go here to <a href="{% url 'manage_quiz:add_quiz' %}" class="btn btn-primary">Add Your Quiz</a>
+            </p>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+

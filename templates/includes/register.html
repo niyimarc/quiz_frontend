@@ -20,11 +20,11 @@
         </div>
         <div class="mb-3">
             <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password" required>
+            <input type="password" name="password" class="form-control" id="password" required>
         </div>
         <div class="mb-3">
             <label for="confirmPassword" class="form-label">Confirm Password</label>
-            <input type="password" name="password" class="form-control" id="confirmPassword" required>
+            <input type="password" name="confirm_password" class="form-control" id="confirmPassword" required>
         </div>
         <div class="text-center mb-3">
             <a href="{% url 'auth_app:login' %}" class="text-decoration-none">Already have an account? Login</a>

@@ -11,6 +11,7 @@ urlpatterns = [
     path('auth/', include('auth_app.urls')),
     path('', include('proxy.urls')),
     path('', include('quiz_app.urls')),
+    path('', include('manage_quiz.urls')),
 ]
 
 if not settings.DEBUG:
