@@ -89,7 +89,14 @@ def register_view(request):
             messages.success(request, 'Registration successful. Please log in.')
             return redirect('auth_app:login')
         else:
-            messages.error(request, 'Registration failed.')
+            try:
+                errors = response.json()
+                # Loop through validation errors and display nicely
+                for field, msgs in errors.items():
+                    for msg in msgs:
+                        messages.error(request, f"{field.capitalize()}: {msg}")
+            except ValueError:
+                messages.error(request, 'Registration failed due to an unexpected error.')
 
     return render(request, 'register.html')
 
