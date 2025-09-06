@@ -47,7 +47,7 @@ def start_quiz(request, quiz_id):
         # print("Fetched quiz data:", quiz_data)
     except Exception as e:
         quiz_data = []
-        print("Error fetching quiz data:", e)
+        # print("Error fetching quiz data:", e)
 
     return render(request, "quiz.html", {"quiz_data": quiz_data})
 
@@ -73,7 +73,7 @@ def continue_quiz_view(request):
         )
         resp.raise_for_status()
         quiz_data = resp.json()
-        print(quiz_data)
+        # print(quiz_data)
         cache.set(f"continue_quiz_{request.user.id}", quiz_data, 60 * 30)
     except Exception as e:
         print("Error fetching unfinished quizzes:", e)
@@ -105,7 +105,7 @@ def resume_quiz_view(request, session_id):
         quiz_data = resp.json()
         cache.set(f"resume_quiz_{request.user.id}", quiz_data, 60 * 30)
     except Exception as e:
-        print("Error resuming quiz:", e)
+        # print("Error resuming quiz:", e)
         quiz_data = {}
 
     return render(request, "quiz.html", {"quiz_data": quiz_data})
@@ -140,7 +140,7 @@ def list_retry_quizzes(request):
         cache.set(f"retryable_quizzes_{request.user.id}", quiz_data, 60 * 30)
 
     except Exception as e:
-        print("Error fetching retryable quizzes:", e)
+        # print("Error fetching retryable quizzes:", e)
         quiz_data = {"message": "Error fetching quizzes.", "options": []}
 
     return render(request, "list_retry_quiz.html", {"quiz_data": quiz_data})
@@ -174,7 +174,7 @@ def start_retry(request, score_id):
         cache.set(f"retry_quiz_{score_id}", quiz_data, 60 * 30)
 
     except Exception as e:
-        print("Error starting retry:", e)
+        # print("Error starting retry:", e)
         quiz_data = []
 
     return render(request, "quiz.html", {"quiz_data": quiz_data})
@@ -204,7 +204,7 @@ def resume_retry(request, session_id):
         cache.set(f"retry_session_{session_id}", quiz_data, 60 * 30)
 
     except Exception as e:
-        print("Error resuming retry session:", e)
+        # print("Error resuming retry session:", e)
         quiz_data = []
 
     return render(request, "quiz.html", {"quiz_data": quiz_data})
