@@ -63,6 +63,9 @@ def proxy_handler(request):
                         headers = build_headers(new_token)
                         response = requests.request(method, full_url, headers=headers, params=query_params, data=data)
                     else:
+                        # Clear session completely
+                        request.session.pop('access_token', None)
+                        request.session.pop('refresh_token', None)
                         return JsonResponse({'error': 'Session expired or token refresh failed.'}, status=401)
             except Exception as e:
                 print("Error parsing response JSON or refreshing:", e)
