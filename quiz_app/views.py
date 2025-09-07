@@ -21,35 +21,47 @@ def list_quiz(request):
 
 @session_access_required
 def start_quiz(request, quiz_id):
-    quiz_data = cache.get("quiz_data")
+    quiz_data = None
+
     try:
         access_token = request.session.get("access_token")
         headers = {}
         if access_token:
             headers["Authorization"] = f"Bearer {access_token}"
 
-        payload = json.dumps({"quiz_id": quiz_id})
+        # First, try to get cached quiz_data (if any active session already cached)
+        # We don't know session_id yet, so just check the old cache key
+        quiz_data = cache.get(f"quiz_data_{request.user.id}_{quiz_id}")
 
-        resp = requests.post(
-            request.build_absolute_uri("/proxy/"),
-            params={
-                "endpoint": "/api/quiz/start_quiz/",
-                "endpoint_type": "private"
-            },
-            data=payload,
-            headers=headers,
-            cookies={"sessionid": request.COOKIES.get("sessionid")},
-            timeout=5
-        )
-        resp.raise_for_status()
-        quiz_data = resp.json()
-        cache.set("quiz_data", quiz_data, 60 * 30)  # cache for 30 mins
-        # print("Fetched quiz data:", quiz_data)
+        if not quiz_data:
+            # Start a new quiz session
+            payload = json.dumps({"quiz_id": quiz_id})
+            resp = requests.post(
+                request.build_absolute_uri("/proxy/"),
+                params={
+                    "endpoint": "/api/quiz/start_quiz/",
+                    "endpoint_type": "private"
+                },
+                data=payload,
+                headers=headers,
+                cookies={"sessionid": request.COOKIES.get("sessionid")},
+                timeout=5
+            )
+            resp.raise_for_status()
+            quiz_data = resp.json()
+
+            # Now that we have session_id, build unique cache key
+            session_id = quiz_data.get("session_id")
+            cache_key = f"quiz_data_{request.user.id}_{quiz_id}_{session_id}"
+            # print(cache_key)
+
+            cache.set(cache_key, quiz_data, 60 * 60)  # cache for 60 mins
+
     except Exception as e:
         quiz_data = []
-        # print("Error fetching quiz data:", e)
 
     return render(request, "quiz.html", {"quiz_data": quiz_data})
+
 
 @session_access_required
 def continue_quiz_view(request):
