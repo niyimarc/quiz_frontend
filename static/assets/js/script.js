@@ -96,9 +96,39 @@ function checkAnswer(selectedOption) {
             answer: selectedOption
         })
     })
-
     .then(res => res.json())
     .then(result => {
+
+        // <<< handle quiz completion
+        if (result.type === "complete") {
+            questionNumberElement.textContent = "Quiz Completed!";
+            questionElement.textContent = ""; // remove question text
+            optionsContainer.innerHTML = ""; // clear options
+            feedbackElement.classList.remove("d-none");
+            feedbackElement.textContent = result.message;  // <<< SHOW BACKEND MESSAGE
+            nextButton.style.display = "none";
+            progressBar.style.width = "100%";
+
+            // <<< ADD BUTTONS UNDER MESSAGE
+            const buttonsHtml = `
+                <div class="mt-3 d-flex gap-2 flex-wrap">
+                    <a href="${URLS.startQuiz}" class="btn btn-primary">
+                        <i class="bi bi-play-circle"></i> Start New Quiz
+                    </a>
+                    <a href="${URLS.retryQuizzes}" class="btn btn-warning">
+                        <i class="bi bi-arrow-clockwise"></i> Retry Missed Questions
+                    </a>
+                    <a href="${URLS.manageQuiz}" class="btn btn-secondary">
+                        <i class="bi bi-gear"></i> Manage My Quiz
+                    </a>
+                </div>
+            `;
+            feedbackElement.insertAdjacentHTML('beforeend', buttonsHtml);
+
+            
+            return; // stop further processing
+        }
+
         const correctAnswer = result.correct_answer;
 
         // Disable options
@@ -132,6 +162,7 @@ function checkAnswer(selectedOption) {
     });
 }
 
+
 // Next button click
 if (nextButton) {
     nextButton.addEventListener("click", () => {
@@ -140,38 +171,44 @@ if (nextButton) {
     });
 }
 
-document.getElementById("categoryFilter").addEventListener("change", function() {
-    const selectedCategory = this.value;
-    const params = new URLSearchParams(window.location.search);
+const categoryFilter = document.getElementById("categoryFilter");
+if (categoryFilter) {
+    categoryFilter.addEventListener("change", function() {
+        const selectedCategory = this.value;
+        const params = new URLSearchParams(window.location.search);
 
-    if (selectedCategory) {
-        params.set("category_id", selectedCategory);
-        params.delete("page"); // reset to page 1
-    } else {
-        params.delete("category_id");
-    }
+        if (selectedCategory) {
+            params.set("category_id", selectedCategory);
+            params.delete("page"); // reset to page 1
+        } else {
+            params.delete("category_id");
+        }
 
-    window.location.search = params.toString();
-});
+        window.location.search = params.toString();
+    });
+}
 
-// Search button
-document.getElementById("quizSearchBtn").addEventListener("click", function() {
-    const searchValue = document.getElementById("quizSearchInput").value.trim();
-    const params = new URLSearchParams(window.location.search);
+const quizSearchBtn = document.getElementById("quizSearchBtn");
+const quizSearchInput = document.getElementById("quizSearchInput");
 
-    if (searchValue) {
-        params.set("search", searchValue);
-        params.delete("page"); // reset to page 1
-    } else {
-        params.delete("search");
-    }
+if (quizSearchBtn && quizSearchInput) {
+    quizSearchBtn.addEventListener("click", function() {
+        const searchValue = quizSearchInput.value.trim();
+        const params = new URLSearchParams(window.location.search);
 
-    window.location.search = params.toString();
-});
+        if (searchValue) {
+            params.set("search", searchValue);
+            params.delete("page"); // reset to page 1
+        } else {
+            params.delete("search");
+        }
 
-// Optional: allow pressing Enter to trigger search
-document.getElementById("quizSearchInput").addEventListener("keypress", function(e) {
-    if (e.key === "Enter") {
-        document.getElementById("quizSearchBtn").click();
-    }
-});
+        window.location.search = params.toString();
+    });
+
+    quizSearchInput.addEventListener("keypress", function(e) {
+        if (e.key === "Enter") {
+            quizSearchBtn.click();
+        }
+    });
+}
