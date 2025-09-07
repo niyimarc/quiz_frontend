@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .utils import get_quizzes
+from .utils import get_quizzes, get_retryable_quizzes
 from auth_app.utils import session_access_required
 from django.core.cache import cache
 import requests
@@ -112,38 +112,14 @@ def resume_quiz_view(request, session_id):
 
 @session_access_required
 def list_retry_quizzes(request):
-    quiz_data = cache.get(f"retryable_quizzes_{request.user.id}")
     try:
-        access_token = request.session.get("access_token")
-        headers = {}
-        if access_token:
-            headers["Authorization"] = f"Bearer {access_token}"
+        page = int(request.GET.get("page", 1))
+    except ValueError:
+        page = 1
 
-        # GET request to proxy endpoint
-        resp = requests.get(
-            request.build_absolute_uri("/proxy/"),
-            params={
-                "endpoint": "/api/quiz/get_retryable_scores/",
-                "endpoint_type": "private"
-            },
-            headers=headers,
-            cookies={"sessionid": request.COOKIES.get("sessionid")},
-            timeout=5
-        )
-        resp.raise_for_status()
-        quiz_data = resp.json()
+    data = get_retryable_quizzes(request, page=page)
+    return render(request, "list_retry_quiz.html", data)
 
-        # Add label key for template
-        for option in quiz_data.get("options", []):
-            option["label"] = f"{option['quiz_name']} ({option['missed_count']} missed)"
-
-        cache.set(f"retryable_quizzes_{request.user.id}", quiz_data, 60 * 30)
-
-    except Exception as e:
-        # print("Error fetching retryable quizzes:", e)
-        quiz_data = {"message": "Error fetching quizzes.", "options": []}
-
-    return render(request, "list_retry_quiz.html", {"quiz_data": quiz_data})
 
 @session_access_required
 def start_retry(request, score_id):

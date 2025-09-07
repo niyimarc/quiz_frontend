@@ -19,6 +19,6 @@ def redirect_if_authenticated(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         if request.session.get("access_token"):
-            return redirect("store:home")
+            return redirect("quiz_app:list_quiz")
         return view_func(request, *args, **kwargs)
     return wrapper
