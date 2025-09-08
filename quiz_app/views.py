@@ -16,7 +16,7 @@ def list_quiz(request):
     category_id = request.GET.get("category_id")
     search = request.GET.get("search", "")
     data = get_quizzes(request, category_id=category_id, page=page, search=search)
-    print(data)
+    # print(data)
     return render(request, "list_quizzes.html", data)
 
 @session_access_required
