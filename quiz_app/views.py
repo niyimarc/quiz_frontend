@@ -31,10 +31,17 @@ def start_quiz(request, quiz_id):
             headers["Authorization"] = f"Bearer {access_token}"
 
         if session_id:
-            cache_key = f"quiz_data_{request.user.id}_{quiz_id}_{session_id}"
-            quiz_data = cache.get(cache_key)
+            # don’t load full quiz_data from cache
+            # cache_key = f"quiz_data_{request.user.id}_{quiz_id}_{session_id}"
+            # quiz_data = cache.get(cache_key)
 
-        if not quiz_data:
+            # Instead, load only static data
+            cache_key = f"quiz_static_{request.user.id}_{quiz_id}_{session_id}"
+            static_data = cache.get(cache_key)
+        else:
+            static_data = None
+
+        if not session_id or not static_data:
             # Start a new quiz session
             payload = {"quiz_id": quiz_id}
 
@@ -57,10 +64,35 @@ def start_quiz(request, quiz_id):
 
             # Now that we have session_id, build unique cache key
             session_id = quiz_data.get("session_id")
-            cache_key = f"quiz_data_{request.user.id}_{quiz_id}_{session_id}"
+            cache_key = f"quiz_static_{request.user.id}_{quiz_id}_{session_id}"
 
-            cache.set(cache_key, quiz_data, 60 * 60)  # cache for 60 mins
+            static_data = {
+                "quiz_name": quiz_data["quiz_name"],
+                "questions": quiz_data["questions"],
+                "total_questions": quiz_data["total_questions"],
+            }
+            cache.set(cache_key, static_data, 60 * 60)
+
             return redirect(f"{request.path}?session_id={session_id}")
+
+        # ✅ Always request fresh progress (index, progress text)
+        payload = {"quiz_id": quiz_id, "session_id": session_id}
+        resp = requests.post(
+            request.build_absolute_uri("/proxy/"),
+            params={
+                "endpoint": "/api/quiz/start_quiz/",
+                "endpoint_type": "private"
+            },
+            json=payload,
+            headers=headers,
+            cookies={"sessionid": request.COOKIES.get("sessionid")},
+            timeout=5
+        )
+        resp.raise_for_status()
+        progress_data = resp.json()
+
+        # Merge static with fresh progress
+        quiz_data = {**static_data, **progress_data}
 
     except Exception as e:
         quiz_data = []
@@ -69,6 +101,7 @@ def start_quiz(request, quiz_id):
         "quiz_data": quiz_data,
         "session_id": quiz_data.get("session_id") if quiz_data else None,
     })
+
 
 @session_access_required
 def continue_quiz_view(request):
