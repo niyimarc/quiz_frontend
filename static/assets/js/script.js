@@ -4,6 +4,7 @@ let currentQuestionIndex = 0;
 let totalQuestions = 0;
 let isRetry = false;
 let quizFinished = false;
+let pendingCompletion = null;
 
 const questionNumberElement = document.getElementById("question-number");
 const questionElement = document.getElementById("question");
@@ -80,7 +81,6 @@ function showQuestion() {
 
 function checkAnswer(selectedOption) {
     const currentQuestion = questions[currentQuestionIndex];
-
     const endpoint = isRetry 
         ? "/api/quiz/submit_retry_answer/" 
         : "/api/quiz/submit_quiz_answer/";
@@ -96,7 +96,6 @@ function checkAnswer(selectedOption) {
     })
     .then(res => res.json())
     .then(result => {
-
         const correctAnswer = result.correct_answer;
 
         // Disable options
@@ -110,7 +109,7 @@ function checkAnswer(selectedOption) {
             }
         });
 
-        // Show feedback
+        // Show feedback for the answer
         feedbackElement.classList.remove("d-none", "feedback-correct", "feedback-incorrect");
         if (result.correct) {
             feedbackElement.textContent = "Correct! 🎉";
@@ -122,8 +121,11 @@ function checkAnswer(selectedOption) {
 
         nextButton.style.display = "block";
 
-        // If last question, set flag
-        if (currentQuestionIndex === totalQuestions - 1) {
+        // If this was the final response, store completion result
+        if (result.type === "complete") {
+            pendingCompletion = result;
+            quizFinished = true;
+        } else if (currentQuestionIndex === totalQuestions - 1) {
             quizFinished = true;
         }
     })
@@ -135,49 +137,47 @@ function checkAnswer(selectedOption) {
     });
 }
 
-
-
 // Next button click
-if (nextButton) {
-    nextButton.addEventListener("click", () => {
-        if (quizFinished) {
-            // Show final completion message
-            questionNumberElement.textContent = "Quiz Completed!";
-            questionElement.textContent = "";
+nextButton.addEventListener("click", () => {
+    if (quizFinished) {
+        // If backend sent a final message, use it
+        const completionMessage = pendingCompletion ? pendingCompletion.message : "You have finished the quiz.";
+        pendingCompletion = null; // reset
 
-            optionsContainer.innerHTML = "";
+        questionNumberElement.textContent = "Quiz Completed!";
+        questionElement.textContent = "";
 
-            // Make feedback visible
-            feedbackElement.classList.remove("d-none");
-            feedbackElement.innerHTML = "You have finished the quiz."; // optional message
+        optionsContainer.innerHTML = "";
 
-            // Show final buttons
-            const buttonsHtml = `
-                <div class="mt-3 d-flex gap-2 flex-wrap">
-                    <a href="${URLS.startQuiz}" class="btn btn-primary">
-                        <i class="bi bi-play-circle"></i> Start New Quiz
-                    </a>
-                    <a href="${URLS.retryQuizzes}" class="btn btn-warning">
-                        <i class="bi bi-arrow-clockwise"></i> Retry Missed Questions
-                    </a>
-                    <a href="${URLS.manageQuiz}" class="btn btn-secondary">
-                        <i class="bi bi-gear"></i> Manage My Quiz
-                    </a>
-                </div>
-            `;
-            feedbackElement.insertAdjacentHTML('beforeend', buttonsHtml);
+        // Show backend message
+        feedbackElement.classList.remove("d-none");
+        feedbackElement.innerHTML = completionMessage;
 
-            nextButton.style.display = "none";
-            progressBar.style.width = "100%";
-            quizFinished = false; // reset flag
-            return;
-        }
-        
-        currentQuestionIndex++;
-        showQuestion();
-    });
-}
+        // Show final buttons
+        const buttonsHtml = `
+            <div class="mt-3 d-flex gap-2 flex-wrap">
+                <a href="${URLS.startQuiz}" class="btn btn-primary">
+                    <i class="bi bi-play-circle"></i> Start New Quiz
+                </a>
+                <a href="${URLS.retryQuizzes}" class="btn btn-warning">
+                    <i class="bi bi-arrow-clockwise"></i> Retry Missed Questions
+                </a>
+                <a href="${URLS.manageQuiz}" class="btn btn-secondary">
+                    <i class="bi bi-gear"></i> Manage My Quiz
+                </a>
+            </div>
+        `;
+        feedbackElement.insertAdjacentHTML('beforeend', buttonsHtml);
 
+        nextButton.style.display = "none";
+        progressBar.style.width = "100%";
+        quizFinished = false; // reset flag
+        return;
+    }
+
+    currentQuestionIndex++;
+    showQuestion();
+});
 
 const categoryFilter = document.getElementById("categoryFilter");
 if (categoryFilter) {
