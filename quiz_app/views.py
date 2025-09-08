@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .utils import get_quizzes, get_retryable_quizzes
 from auth_app.utils import session_access_required
 from django.core.cache import cache
@@ -16,12 +16,13 @@ def list_quiz(request):
     category_id = request.GET.get("category_id")
     search = request.GET.get("search", "")
     data = get_quizzes(request, category_id=category_id, page=page, search=search)
-
+    print(data)
     return render(request, "list_quizzes.html", data)
 
 @session_access_required
 def start_quiz(request, quiz_id):
     quiz_data = None
+    session_id = request.GET.get("session_id")
 
     try:
         access_token = request.session.get("access_token")
@@ -29,20 +30,24 @@ def start_quiz(request, quiz_id):
         if access_token:
             headers["Authorization"] = f"Bearer {access_token}"
 
-        # First, try to get cached quiz_data (if any active session already cached)
-        # We don't know session_id yet, so just check the old cache key
-        quiz_data = cache.get(f"quiz_data_{request.user.id}_{quiz_id}")
+        if session_id:
+            cache_key = f"quiz_data_{request.user.id}_{quiz_id}_{session_id}"
+            quiz_data = cache.get(cache_key)
 
         if not quiz_data:
             # Start a new quiz session
-            payload = json.dumps({"quiz_id": quiz_id})
+            payload = {"quiz_id": quiz_id}
+
+            if session_id:
+                payload["session_id"] = session_id
+            
             resp = requests.post(
                 request.build_absolute_uri("/proxy/"),
                 params={
                     "endpoint": "/api/quiz/start_quiz/",
                     "endpoint_type": "private"
                 },
-                data=payload,
+                json=payload, 
                 headers=headers,
                 cookies={"sessionid": request.COOKIES.get("sessionid")},
                 timeout=5
@@ -53,15 +58,17 @@ def start_quiz(request, quiz_id):
             # Now that we have session_id, build unique cache key
             session_id = quiz_data.get("session_id")
             cache_key = f"quiz_data_{request.user.id}_{quiz_id}_{session_id}"
-            # print(cache_key)
 
             cache.set(cache_key, quiz_data, 60 * 60)  # cache for 60 mins
+            return redirect(f"{request.path}?session_id={session_id}")
 
     except Exception as e:
         quiz_data = []
 
-    return render(request, "quiz.html", {"quiz_data": quiz_data})
-
+    return render(request, "quiz.html", {
+        "quiz_data": quiz_data,
+        "session_id": quiz_data.get("session_id") if quiz_data else None,
+    })
 
 @session_access_required
 def continue_quiz_view(request):
@@ -88,7 +95,7 @@ def continue_quiz_view(request):
         # print(quiz_data)
         cache.set(f"continue_quiz_{request.user.id}", quiz_data, 60 * 30)
     except Exception as e:
-        print("Error fetching unfinished quizzes:", e)
+        # print("Error fetching unfinished quizzes:", e)
         quiz_data = []
 
     return render(request, "continue_quiz.html", {"quiz_data": quiz_data})
