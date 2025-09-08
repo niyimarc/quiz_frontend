@@ -42,10 +42,11 @@ def get_quizzes(request, category_id=None, page=1, search=""):
         prev_url = resp_data.get("previous")
 
         # pagination
-        has_prev = bool(prev_url)
-        has_next = bool(next_url)
         per_page = len(quizzes) or 1
         total_pages = math.ceil(quiz_count / per_page)
+        # safer prev/next logic
+        has_prev = page > 1
+        has_next = page < total_pages
 
         if has_prev and has_next:
             page_numbers = [page - 1, page, page + 1]
@@ -110,10 +111,11 @@ def get_retryable_quizzes(request, page=1):
         prev_url = resp_data.get("previous")
 
         # pagination
-        has_prev = bool(prev_url)
-        has_next = bool(next_url)
         per_page = len(options) or 1
         total_pages = math.ceil(quiz_count / per_page)
+        # safer prev/next logic
+        has_prev = page > 1
+        has_next = page < total_pages
 
         if has_prev and has_next:
             page_numbers = [page - 1, page, page + 1]
