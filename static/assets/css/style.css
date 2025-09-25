@@ -130,17 +130,18 @@ body {
 }
 
 pre {
-    margin: 0.75rem 0;
-    padding: 0.75rem;
+    margin: 0.7rem 0;
+    padding: 0.7rem;
     border-radius: 6px;
     background: #f8f9fa;
     border: 1px solid #ddd;
-    font-size: 0.9rem;
-    line-height: 1.4;
+    font-size: 0.6rem;
+    line-height: 1.2;
     max-width: 100%;
 }
 
 pre code {
+    padding: 0.5rem;
     display: block;
     font-family: monospace;
 }
