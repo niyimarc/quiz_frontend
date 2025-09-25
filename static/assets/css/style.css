@@ -129,16 +129,33 @@ body {
     }
 }
 
-pre code {
-    white-space: pre;   /* preserve line breaks, but no wrapping */
-    overflow-x: auto;   /* allow horizontal scroll */
-    word-wrap: break-word;   /* break long lines instead of horizontal scroll */
-    display: block;          /* make sure it fills width */
-    font-family: monospace;  /* consistent code font */
-    font-size: 0.9rem;       /* smaller font for readability */
-    line-height: 1.4;        /* more spacing between lines */
-    padding: 0.75rem;
-    border-radius: 6px;
-    background: #f8f9fa;     /* light gray background */
+pre {
+    background: #f8f9fa;
     border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0.75rem;
+    overflow-x: auto;       /* only scroll if code exceeds width */
+    max-width: 100%;        /* prevent overflow outside container */
+}
+
+pre code {
+    white-space: pre;       /* preserve spacing and prevent wrapping */
+    font-family: monospace;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    display: block;
+}
+
+
+
+
+pre::-webkit-scrollbar {
+    height: 8px;
+}
+pre::-webkit-scrollbar-thumb {
+    background: #bbb;
+    border-radius: 4px;
+}
+pre::-webkit-scrollbar-track {
+    background: #f1f1f1;
 }
