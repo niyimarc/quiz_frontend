@@ -50,7 +50,26 @@ function showQuestion() {
     if (currentQuestionIndex < totalQuestions) {
         const currentQuestion = questions[currentQuestionIndex];
         questionNumberElement.textContent = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
-        questionElement.textContent = currentQuestion.text;
+
+        // --- NEW: handle [mycode] markers ---
+        let rawText = currentQuestion.text;
+
+        rawText = rawText.replace(
+            /\[mycode(.*?)\]([\s\S]*?)\[\/mycode\]/g,
+            (match, attrs, codeContent) => {
+                const langMatch = attrs.match(/class="([^"]+)"/);
+                const langClass = langMatch ? langMatch[1] : "language-java";
+
+                return `<pre><code class="${langClass}">${codeContent.trim()}</code></pre>`;
+            }
+        );
+
+        questionElement.innerHTML = rawText;
+
+        // Highlight code if Prism is available
+        if (window.Prism) Prism.highlightAll();
+        // --- END NEW ---
+
         optionsContainer.innerHTML = "";
         feedbackElement.classList.add("d-none");
         nextButton.style.display = "none";
@@ -78,6 +97,7 @@ function showQuestion() {
         progressBar.style.width = "100%";
     }
 }
+
 
 function checkAnswer(selectedOption) {
     const currentQuestion = questions[currentQuestionIndex];
@@ -220,3 +240,19 @@ if (quizSearchBtn && quizSearchInput) {
         }
     });
 }
+
+questionElement.innerHTML = currentQuestion.text;
+
+// Convert <mycode> into <pre><code>
+questionElement.querySelectorAll("mycode").forEach(el => {
+    const codeBlock = document.createElement("pre");
+    const code = document.createElement("code");
+    const lang = el.getAttribute("class") || "language-java";
+    code.className = lang;
+    code.textContent = el.innerText.trim();
+    codeBlock.appendChild(code);
+    el.replaceWith(codeBlock);
+});
+
+// Re-highlight syntax
+if (window.Prism) Prism.highlightAll();

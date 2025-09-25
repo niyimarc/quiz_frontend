@@ -2,7 +2,21 @@
     <h1 class="card-title text-center text-primary fw-bold">Copy prompt</h1>
     <div class="mb-3 position-relative">
         <textarea id="quizPrompt" class="form-control" rows="10" readonly style="font-size: 0.9rem; white-space: pre-wrap;">
-extract the multiple-choice questions from the provided document or picture of the past questions and format them into a Google Sheets-compatible table. The table should have the following columns: question_number, question, option_a, option_b, option_c, option_d, option_e, and correct_answer. For the correct_answer column, please use the format [letter]. [full text of the option].
+Extract the multiple-choice questions from the provided document or picture of the past questions and format them into a Google Sheets-compatible table. The table should have the following columns: question_number, question, option_a, option_b, option_c, option_d, option_e, and correct_answer. 
+
+For the correct_answer column, please use the format [letter]. [full text of the option].
+
+⚡ Additional rule:
+- If a question contains code, wrap the code inside [mycode class="language-XYZ"]...[/mycode], 
+  where XYZ is the language of the code snippet (for example: language-java, language-python, language-sql, language-html, etc.).
+  Example:
+  [mycode class="language-java"]
+  class Test {
+      public static void main(String[] args) {
+          System.out.println("Hello");
+      }
+  }
+  [/mycode]
 
 For example:
 question_number: 1
@@ -15,6 +29,7 @@ option_e: Options (a) and (c) only
 correct_answer: d. All of the above
 
 Please apply this format to all multiple-choice questions from the document or image.
+
         </textarea>
         <button id="copyPromptBtn" class="btn btn-sm btn-primary mt-2">📋 Copy Prompt</button>
         <small id="copyStatus" class="text-success d-none ms-2">Copied!</small>
