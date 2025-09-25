@@ -128,3 +128,16 @@ body {
         width: 33.333333% !important;
     }
 }
+
+pre code {
+    white-space: pre-wrap;   /* preserve line breaks AND allow wrapping */
+    word-wrap: break-word;   /* break long lines instead of horizontal scroll */
+    display: block;          /* make sure it fills width */
+    font-family: monospace;  /* consistent code font */
+    font-size: 0.9rem;       /* smaller font for readability */
+    line-height: 1.4;        /* more spacing between lines */
+    padding: 0.75rem;
+    border-radius: 6px;
+    background: #f8f9fa;     /* light gray background */
+    border: 1px solid #ddd;
+}
