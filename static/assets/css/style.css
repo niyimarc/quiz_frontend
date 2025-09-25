@@ -130,7 +130,8 @@ body {
 }
 
 pre code {
-    white-space: pre-wrap;   /* preserve line breaks AND allow wrapping */
+    white-space: pre;   /* preserve line breaks, but no wrapping */
+    overflow-x: auto;   /* allow horizontal scroll */
     word-wrap: break-word;   /* break long lines instead of horizontal scroll */
     display: block;          /* make sure it fills width */
     font-family: monospace;  /* consistent code font */

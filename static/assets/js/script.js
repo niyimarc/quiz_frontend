@@ -51,7 +51,7 @@ function showQuestion() {
         const currentQuestion = questions[currentQuestionIndex];
         questionNumberElement.textContent = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
 
-        // --- NEW: handle [mycode] markers ---
+        // --- Handle [mycode] markers with escaping ---
         let rawText = currentQuestion.text;
 
         rawText = rawText.replace(
@@ -60,7 +60,13 @@ function showQuestion() {
                 const langMatch = attrs.match(/class="([^"]+)"/);
                 const langClass = langMatch ? langMatch[1] : "language-java";
 
-                return `<pre><code class="${langClass}">${codeContent.trim()}</code></pre>`;
+                // Escape HTML special characters to preserve formatting
+                const escaped = codeContent
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;");
+
+                return `<pre><code class="${langClass}">${escaped.trim()}</code></pre>`;
             }
         );
 
@@ -68,7 +74,7 @@ function showQuestion() {
 
         // Highlight code if Prism is available
         if (window.Prism) Prism.highlightAll();
-        // --- END NEW ---
+        // --- END mycode handling ---
 
         optionsContainer.innerHTML = "";
         feedbackElement.classList.add("d-none");
