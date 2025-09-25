@@ -130,24 +130,20 @@ body {
 }
 
 pre {
+    margin: 0.75rem 0;
+    padding: 0.75rem;
+    border-radius: 6px;
     background: #f8f9fa;
     border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 0.75rem;
-    overflow-x: auto;       /* only scroll if code exceeds width */
-    max-width: 100%;        /* prevent overflow outside container */
+    font-size: 0.9rem;
+    line-height: 1.4;
+    max-width: 100%;
 }
 
 pre code {
-    white-space: pre;       /* preserve spacing and prevent wrapping */
-    font-family: monospace;
-    font-size: 0.9rem;
-    line-height: 1.4;
     display: block;
+    font-family: monospace;
 }
-
-
-
 
 pre::-webkit-scrollbar {
     height: 8px;

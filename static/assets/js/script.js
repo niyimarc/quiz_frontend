@@ -46,35 +46,88 @@ function updateProgressBar() {
     progressBar.style.width = `${progress}%`;
 }
 
+// --- Helper: Auto-format code by language with indentation ---
+function autoFormatCode(code, lang) {
+    let formatted = code.trim();
+    let lines = [];
+
+    if (lang.includes("java") || lang.includes("javascript") || lang.includes("js") || lang.includes("c") || lang.includes("cpp")) {
+        formatted = formatted
+            .replace(/;/g, ";\n")
+            .replace(/{/g, "{\n")
+            .replace(/}/g, "\n}")
+            .replace(/\)\s*{/g, ")\n{")
+            .replace(/\n\s*\n/g, "\n");
+
+        lines = formatted.split("\n");
+
+        let indent = 0;
+        lines = lines.map(line => {
+            line = line.trim();
+            if (line.endsWith("}")) indent -= 1;
+            let indented = "    ".repeat(Math.max(indent, 0)) + line;
+            if (line.endsWith("{")) indent += 1;
+            return indented;
+        });
+    } 
+    else if (lang.includes("python")) {
+        formatted = formatted
+            .replace(/:/g, ":\n")
+            .replace(/def /g, "\ndef ")
+            .replace(/class /g, "\nclass ")
+            .replace(/\n\s*\n/g, "\n");
+
+        lines = formatted.split("\n");
+
+        let indent = 0;
+        lines = lines.map(line => {
+            line = line.trim();
+            let indented = "    ".repeat(indent) + line;
+            if (line.endsWith(":")) indent += 1;
+            return indented;
+        });
+    } 
+    else {
+        formatted = formatted.replace(/;/g, ";\n").replace(/{/g, "{\n").replace(/}/g, "\n}");
+        lines = formatted.split("\n");
+    }
+
+    return lines.join("\n");
+}
+
+// --- Escape HTML ---
+function escapeHTML(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
 function showQuestion() {
     if (currentQuestionIndex < totalQuestions) {
         const currentQuestion = questions[currentQuestionIndex];
         questionNumberElement.textContent = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
 
-        // --- Handle [mycode] markers with escaping ---
         let rawText = currentQuestion.text;
 
+        // --- Handle [mycode] markers ---
         rawText = rawText.replace(
             /\[mycode(.*?)\]([\s\S]*?)\[\/mycode\]/g,
             (match, attrs, codeContent) => {
                 const langMatch = attrs.match(/class="([^"]+)"/);
                 const langClass = langMatch ? langMatch[1] : "language-java";
 
-                // Escape HTML special characters to preserve formatting
-                const escaped = codeContent
-                    .replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;");
+                let formattedCode = autoFormatCode(codeContent, langClass);
 
-                return `<pre><code class="${langClass}">${escaped.trim()}</code></pre>`;
+                // Add scroll or wrap style depending on lang
+                const style = (langClass.includes("java") || langClass.includes("js") || langClass.includes("cpp"))
+                    ? "style='white-space: pre; overflow-x: auto;'"
+                    : "style='white-space: pre-wrap; word-wrap: break-word;'";
+
+                return `<pre ${style}><code class="${langClass}">${escapeHTML(formattedCode)}</code></pre>`;
             }
         );
 
         questionElement.innerHTML = rawText;
 
-        // Highlight code if Prism is available
         if (window.Prism) Prism.highlightAll();
-        // --- END mycode handling ---
 
         optionsContainer.innerHTML = "";
         feedbackElement.classList.add("d-none");
@@ -94,7 +147,6 @@ function showQuestion() {
 
         updateProgressBar();
     } else {
-        // Quiz complete
         questionNumberElement.textContent = "Quiz Completed!";
         questionElement.textContent = "You have finished the quiz.";
         optionsContainer.innerHTML = "";
@@ -103,6 +155,7 @@ function showQuestion() {
         progressBar.style.width = "100%";
     }
 }
+
 
 
 function checkAnswer(selectedOption) {

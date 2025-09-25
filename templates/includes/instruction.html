@@ -6,29 +6,42 @@ Extract the multiple-choice questions from the provided document or picture of t
 
 For the correct_answer column, please use the format [letter]. [full text of the option].
 
-⚡ Additional rule:
-- If a question contains code, wrap the code inside [mycode class="language-XYZ"]...[/mycode], 
-  where XYZ is the language of the code snippet (for example: language-java, language-python, language-sql, language-html, etc.).
-  Example:
-  [mycode class="language-java"]
-  class Test {
-      public static void main(String[] args) {
-          System.out.println("Hello");
-      }
-  }
-  [/mycode]
+⚡ Additional rules:
+1. If a question contains code, wrap the code inside [mycode class="language-XYZ"]...[/mycode], 
+   where XYZ is the language of the code snippet (for example: language-java, language-python, language-sql, language-html, etc.).
 
-For example:
-question_number: 1
-question: In BIS, which of the following is/are true about a system?
-option_a: It is a collection of interrelated components that works together towards a collective goal.
-option_b: A system can either be static or adaptive
-option_c: Some of the system components are input, feedback and control
-option_d: All of the above
-option_e: Options (a) and (c) only
-correct_answer: d. All of the above
+2. Inside the [mycode] block, replace all actual newlines with the characters `\n`.  
+   Example:
+   Instead of:
+   [mycode class="language-java"]
+   class Test {
+       public static void main(String[] args) {
+           System.out.println("Hello");
+       }
+   }
+   [/mycode]
+
+   Store it as:
+   [mycode class="language-java"]class Test {\n    public static void main(String[] args) {\n        System.out.println("Hello");\n    }\n}[/mycode]
+
+3. The correct_answer column must follow this format: [letter]. [full text of the option].
+   Example: d. All of the above
+
+---
+
+Example output:
+
+question_number: 1  
+question: In BIS, which of the following is/are true about a system?  
+option_a: It is a collection of interrelated components that works together towards a collective goal.  
+option_b: A system can either be static or adaptive  
+option_c: Some of the system components are input, feedback and control  
+option_d: All of the above  
+option_e: Options (a) and (c) only  
+correct_answer: d. All of the above  
 
 Please apply this format to all multiple-choice questions from the document or image.
+
 
         </textarea>
         <button id="copyPromptBtn" class="btn btn-sm btn-primary mt-2">📋 Copy Prompt</button>
